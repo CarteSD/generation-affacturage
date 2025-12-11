@@ -1,0 +1,15 @@
+Code;Libellé
+TRT;Traite
+LCR;Lettre de crédit accepté
+PRE;Débit automatique
+CHQ;Chèque
+MAD;Mandat administratif
+PAG;Pagare (client étranger)
+REC;Recibo (client étranger)
+LCM;Lettre de crédit magnétique acceptée
+LCN;Lettre de crédit non acceptée
+BOR;Billet à ordre relevé
+VIR;Virement
+BAO;Billet à ordre
+RIB;Riba (client étranger)
+DOC;Lettre de crédit (client étranger)
