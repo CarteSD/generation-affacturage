@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
-from traitement import valider_fichier
+from traitement import valider_fichier, convertir_fichier
 
 
 class ConversionApp:
@@ -78,7 +78,13 @@ class ConversionApp:
             messagebox.showerror("Erreur", message_validation)
             return
         
-        messagebox.showinfo("Succès", "Le fichier est correctement validé et prêt pour la conversion.")
+        # Convertir le fichier
+        succes, message = convertir_fichier(self.fichier_selectionne)
+        
+        if succes:
+            messagebox.showinfo("Succès", message)
+        else:
+            messagebox.showerror("Erreur", message)
         
 
 def main():
