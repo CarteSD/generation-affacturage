@@ -119,10 +119,10 @@ def generate_balance_file(df_source):
         if 'AVOIR' in str(reglement):
             codeReglement = 'AVO'
             typePiece = 'AVO'
-            montantDevise = -abs(row.get('Montant T.T.C.'))
+            montantDevise = round(-abs(row.get('Montant T.T.C.')), 2)
         else:
             codeReglement = 'VIR'
-            montantDevise = abs(row.get('Montant T.T.C.'))
+            montantDevise = round(abs(row.get('Montant T.T.C.')), 2)
 
         df_balance.loc[len(df_balance)] = [
             CODE_VENDEUR_CEDANT,
