@@ -138,4 +138,7 @@ def generate_balance_file(df_source):
             NUERO_COMMANDE
         ]
 
+    # Insérer la dernière ligne manuellement
+    df_balance.loc[len(df_balance)] = ['999999', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'FIN', '', '']
+
     return df_balance
