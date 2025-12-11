@@ -1,0 +1,7 @@
+Code;Libelle
+FAC;Facture
+AVO;Avoir
+RGT;Cash (chèque, virement) enregistré mais non lettré
+OD;Ajustement
+PTF;Tout type de paiement avec échéance
+PTV;Virements avec échéance
