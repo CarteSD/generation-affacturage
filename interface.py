@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
-from traitement import valider_fichier, convertir_fichier
+from traitement import valider_fichier, convertir_fichier, generate_balance_file
 
 
 class ConversionApp:
@@ -12,6 +12,7 @@ class ConversionApp:
         self.root.resizable(False, False)
         
         self.fichier_selectionne = None
+        self.dataframe = None  # Stocke le DataFrame en mémoire
         
         # Frame principal
         main_frame = tk.Frame(root, padx=20, pady=20)
@@ -79,12 +80,24 @@ class ConversionApp:
             return
         
         # Convertir le fichier
-        succes, message = convertir_fichier(self.fichier_selectionne)
+        succes, resultat = convertir_fichier(self.fichier_selectionne)
         
         if succes:
-            messagebox.showinfo("Succès", message)
+            self.dataframe = resultat
+            nb_lignes, nb_colonnes = self.dataframe.shape
+            messagebox.showinfo(
+                "Succès", 
+                f"Fichier chargé avec succès !\n\nLignes : {nb_lignes}\nColonnes : {nb_colonnes}"
+            )
         else:
-            messagebox.showerror("Erreur", message)
+            messagebox.showerror("Erreur", resultat)
+            return
+        
+        # Générer le dataframe Balance
+        df_balance = generate_balance_file(self.dataframe)
+        print("DataFrame Balance généré :")
+        print(df_balance)
+
         
 
 def main():

@@ -81,8 +81,61 @@ def generate_balance_file(df_source):
         msg = "Le package 'pandas' (et 'openpyxl') n'est pas installé. Installez-le avec: pip install pandas openpyxl"
         return False, msg
     
-        # Créer un df avec les colonnes nécessaires
-    df_balance = ['Code vendeur cédant', 'Date du fichier', 'Code client', 'N° de la pièce', 'Date de la pièce', 'Devise du fichier', 'Montant en devise', 'Date d\'échéance', 'Type de la pièce', 'Mode de règlement', 'Numéro de la commande']
+    # Créer un df avec les colonnes nécessaires
+    colonnes = [
+        'Code vendeur cédant',
+        'Date du fichier',
+        'Code client',
+        'N° de la pièce',
+        'Date de la pièce',
+        'Devise du fichier',
+        'Montant en devise',
+        'Date d\'échéance',
+        'Type de la pièce',
+        'Mode de règlement',
+        'Numéro de la commande'
+    ]
+    
+    df_balance = pd.DataFrame(columns=colonnes)
 
     # Insérer la première ligne manuellement
     df_balance.loc[len(df_balance)] = ['000000', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'DEB', '', '']
+
+    # Définir les constantes pour les colonnes
+    CODE_VENDEUR_CEDANT = '012345'
+    DATE_FICHIER = pd.Timestamp.now().strftime('%d/%m/%Y')
+    DEVISE_FICHIER = 'EUR'
+    NUERO_COMMANDE = ''
+
+    # Parcourir les lignes du df source et remplir le df balance
+    for _, row in df_source.iterrows():
+        codeClient = row.get('Client')
+        reglement = row.get('Règlement')
+        numPiece = row.get('N°Fact.')
+        datePiece = row.get('Date')
+        dateEcheance = row.get('Echéance')
+        typePiece = 'FAC'
+
+        if 'AVOIR' in str(reglement):
+            codeReglement = 'AVO'
+            typePiece = 'AVO'
+            montantDevise = -abs(row.get('Montant T.T.C.'))
+        else:
+            codeReglement = 'VIR'
+            montantDevise = abs(row.get('Montant T.T.C.'))
+
+        df_balance.loc[len(df_balance)] = [
+            CODE_VENDEUR_CEDANT,
+            DATE_FICHIER,
+            codeClient,
+            numPiece,
+            datePiece,
+            DEVISE_FICHIER,
+            montantDevise,
+            dateEcheance,
+            typePiece,
+            codeReglement,
+            NUERO_COMMANDE
+        ]
+
+    return df_balance
