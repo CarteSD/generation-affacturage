@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
-from traitement import valider_fichier, convertir_fichier, generate_balance_file
+from traitement import valider_fichier, convertir_fichier, generate_balance_file, export_dataframe_to_csv
 
 
 class ConversionApp:
@@ -98,7 +98,12 @@ class ConversionApp:
         print("DataFrame Balance généré :")
         print(df_balance)
 
-        
+        # Exporter le DataFrame Balance
+        success, message = export_dataframe_to_csv(df_balance, "balance")
+        if success:
+            messagebox.showinfo("Succès", message)
+        else:
+            messagebox.showerror("Erreur", message)
 
 def main():
     root = tk.Tk()

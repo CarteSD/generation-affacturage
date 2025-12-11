@@ -112,8 +112,8 @@ def generate_balance_file(df_source):
         codeClient = row.get('Client')
         reglement = row.get('Règlement')
         numPiece = row.get('N°Fact.')
-        datePiece = row.get('Date')
-        dateEcheance = row.get('Echéance')
+        datePiece = row.get('Date').strftime('%d/%m/%Y')
+        dateEcheance = row.get('Echéance').strftime('%d/%m/%Y')
         typePiece = 'FAC'
 
         if 'AVOIR' in str(reglement):
@@ -142,3 +142,35 @@ def generate_balance_file(df_source):
     df_balance.loc[len(df_balance)] = ['999999', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'FIN', '', '']
 
     return df_balance
+
+def export_dataframe_to_csv(df_source, type):
+    """
+    Exporte le DataFrame source en fichier CSV.
+    
+    Args:
+        df_source (DataFrame): DataFrame source.
+        type (str): Type de fichier ('balance' ou 'ecritures').
+    
+    Returns:
+        tuple: (succès: bool, message: str)
+    """
+    try:
+        import pandas as pd
+    except Exception as e:
+        msg = "Le package 'pandas' (et 'openpyxl') n'est pas installé. Installez-le avec: pip install pandas openpyxl"
+        return False, msg
+    
+    if type == 'balance':
+        nom_fichier = "FBA"
+        nom_fichier += "SS"
+        nom_fichier += "012345"
+        nom_fichier += "1A"
+        nom_fichier += "."
+        nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
+
+    try:
+        df_source.to_csv(nom_fichier, index=False, sep=';', encoding='utf-8-sig')
+        return True, f"Fichier exporté avec succès : {nom_fichier}"
+    except Exception as e:
+        msg = f"Erreur lors de l'exportation : {str(e)}"
+        return False, msg
