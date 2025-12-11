@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
+from traitement import valider_fichier
 
 
 class ConversionApp:
@@ -71,11 +72,14 @@ class ConversionApp:
             messagebox.showwarning("Attention", "Aucun fichier sélectionné")
             return
         
-        messagebox.showinfo(
-            "Conversion",
-            f"Conversion lancée pour :\n{self.fichier_selectionne}"
-        )
-
+        # Valider le fichier
+        valide, message_validation = valider_fichier(self.fichier_selectionne)
+        if not valide:
+            messagebox.showerror("Erreur", message_validation)
+            return
+        
+        messagebox.showinfo("Succès", "Le fichier est correctement validé et prêt pour la conversion.")
+        
 
 def main():
     root = tk.Tk()
