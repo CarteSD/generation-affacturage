@@ -80,3 +80,9 @@ def generate_balance_file(df_source):
     except Exception as e:
         msg = "Le package 'pandas' (et 'openpyxl') n'est pas installé. Installez-le avec: pip install pandas openpyxl"
         return False, msg
+    
+        # Créer un df avec les colonnes nécessaires
+    df_balance = ['Code vendeur cédant', 'Date du fichier', 'Code client', 'N° de la pièce', 'Date de la pièce', 'Devise du fichier', 'Montant en devise', 'Date d\'échéance', 'Type de la pièce', 'Mode de règlement', 'Numéro de la commande']
+
+    # Insérer la première ligne manuellement
+    df_balance.loc[len(df_balance)] = ['000000', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'DEB', '', '']
