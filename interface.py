@@ -96,8 +96,6 @@ class ConversionApp:
         
         # Générer le Dataframe Balance
         df_balance = generate_balance_file(self.dataframe)
-        print("DataFrame Balance généré :")
-        print(df_balance)
 
         # Charger les données clients pour la séparation
         df_clients = pd.read_csv('datas/clients_siret.csv', sep=';', encoding='utf-8-sig')
@@ -110,7 +108,6 @@ class ConversionApp:
         
         # Traiter les clients français (1A)
         if not df_balance_fr.empty and len(df_balance_fr) > 2:  # Plus que juste les lignes début/fin
-            print("Export des clients français (1A)...")
             
             # Exporter Balance FR
             success, message = export_dataframe_to_csv(df_balance_fr, "balance", "1A")
@@ -133,7 +130,6 @@ class ConversionApp:
         
         # Traiter les clients étrangers (1B)
         if not df_balance_etranger.empty and len(df_balance_etranger) > 2:  # Plus que juste les lignes début/fin
-            print("Export des clients étrangers (1B)...")
             
             # Exporter Balance étranger
             success, message = export_dataframe_to_csv(df_balance_etranger, "balance", "1B")

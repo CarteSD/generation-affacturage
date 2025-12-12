@@ -248,8 +248,6 @@ def generate_tiers_file(df_balance):
     clients_non_identifies = set()
     clients_traites = set()  # Pour éviter les doublons
 
-    print(df_balance.head())
-
     # Parcourir les lignes du df balance et remplir le df tiers
     for _, row in df_balance.iterrows():
         code_client = row['Code client']
