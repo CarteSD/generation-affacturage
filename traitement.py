@@ -166,6 +166,7 @@ def generate_tiers_file(df_balance):
     
     Returns:
         DataFrame: DataFrame des tiers généré.
+        set: Ensemble des clients non identifiés.
     """
     try:
         import pandas as pd
@@ -179,8 +180,59 @@ def generate_tiers_file(df_balance):
 
     # Insérer la première ligne manuellement
     lignes.append(['000000', 'DEB', '32038969500026', 'MONTAGE ET ASSEMBLAGE MECANIQUE', 'MONTAGE ET ASSEMBLAGE MECANIQUE', '23 RUE MELVILLE-LYNCH', 'PARC D\'ACTIVITE MAIGNON', '64100', 'BAYONNE', 'FR'])
+    
+    # Définir les constantes pour les colonnes
+    CODE_VENDEUR_CEDANT = '012345'
 
-    return df_tiers
+    # Récupérer les données utiles
+    df_clients = pd.read_csv('datas/clients_siret.csv', sep=';')
+    df_codes_pays = pd.read_csv('datas/codes_pays.csv', sep=';')
+
+    # Déclarer les clients non identifiés
+    clients_non_identifies = set()
+
+    print(df_balance.head())
+
+    # Parcourir les lignes du df balance et remplir le df tiers
+    for _, row in df_balance.iterrows():
+        if not row['Code client'] in df_clients['Code'].values:
+            clients_non_identifies.add(str(row['Code client']))
+            continue
+        
+        client_info = df_clients[df_clients['Code'] == row['Code client']].iloc[0]
+        lignes.append([
+            CODE_VENDEUR_CEDANT,
+            str(client_info['Code']),
+            str(client_info['SIRET'])[:14],
+            str(client_info['Raison sociale'])[:40],
+            str(client_info['Raison sociale'])[:40],
+            str(client_info['Voie'])[:40],
+            str(client_info['Complement'])[:40],
+            str(client_info['CP'])[:6],
+            str(client_info['Ville'])[:34],
+            df_codes_pays.loc[df_codes_pays['Pays'] == client_info['Pays'], 'ISO'].values[0] if len(df_codes_pays.loc[df_codes_pays['Pays'] == client_info['Pays'], 'ISO'].values) > 0 else 'FR'
+        ])
+
+    # Insérer la dernière ligne manuellement
+    lignes.append(['999999', 'FIN', '32038969500026', 'MONTAGE ET ASSEMBLAGE MECANIQUE', 'MONTAGE ET ASSEMBLAGE MECANIQUE', '23 RUE MELVILLE-LYNCH', 'PARC D\'ACTIVITE MAIGNON', '64100', 'BAYONNE', 'FR'])
+
+    # Ajout du nom des colonnes
+    colonnes = [
+        'Code vendeur cédant',
+        'Code client',
+        'Identifiant du tiers',
+        'Sigle du tiers',
+        'Raison sociale',
+        'N° et nom de la voie',
+        'Complément d\'adresse',
+        'Code postal',
+        'Ville',
+        'Code pays'
+    ]
+
+    df_tiers = pd.DataFrame(lignes, columns=colonnes)
+
+    return df_tiers, clients_non_identifies
 
 def export_dataframe_to_csv(df_source, type):
     """
