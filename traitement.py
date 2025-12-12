@@ -5,6 +5,8 @@ Contient les fonctions de conversion et de traitement des données
 
 import os
 from pathlib import Path
+from re import match
+from unittest import case
 
 def convertir_fichier(chemin_fichier, sheet_name=0):
     """
@@ -81,25 +83,11 @@ def generate_balance_file(df_source):
         msg = "Le package 'pandas' (et 'openpyxl') n'est pas installé. Installez-le avec: pip install pandas openpyxl"
         return False, msg
     
-    # Créer un df avec les colonnes nécessaires
-    colonnes = [
-        'Code vendeur cédant',
-        'Date du fichier',
-        'Code client',
-        'N° de la pièce',
-        'Date de la pièce',
-        'Devise du fichier',
-        'Montant en devise',
-        'Date d\'échéance',
-        'Type de la pièce',
-        'Mode de règlement',
-        'Numéro de la commande'
-    ]
-    
-    df_balance = pd.DataFrame(columns=colonnes)
+    # Créer une liste pour accumuler les lignes
+    lignes = []
 
     # Insérer la première ligne manuellement
-    df_balance.loc[len(df_balance)] = ['000000', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'DEB', '', '']
+    lignes.append(['000000', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'DEB', '', ''])
 
     # Définir les constantes pour les colonnes
     CODE_VENDEUR_CEDANT = '012345'
@@ -116,15 +104,25 @@ def generate_balance_file(df_source):
         dateEcheance = row.get('Echéance').strftime('%d/%m/%Y')
         typePiece = 'FAC'
 
-        if 'AVOIR' in str(reglement):
-            codeReglement = 'AVO'
-            typePiece = 'AVO'
+        premiereLettreCodeReglement = str(reglement)[0]
+
+        # Faire un switch case sur la première lettre du code règlement
+        match premiereLettreCodeReglement:
+            case 'T':
+                codeReglement = 'TRT'
+            case 'C':
+                codeReglement = 'CHE'
+            case 'V':
+                codeReglement = 'VIR'
+            case 'A':
+                codeReglement = 'AVO'
+        
+        if codeReglement == 'AVO':
             montantDevise = round(-abs(row.get('Montant T.T.C.')), 2)
-        else:
-            codeReglement = 'VIR'
+        elif codeReglement in ['VIR', 'CHE', 'TRT']:
             montantDevise = round(abs(row.get('Montant T.T.C.')), 2)
 
-        df_balance.loc[len(df_balance)] = [
+        lignes.append([
             CODE_VENDEUR_CEDANT,
             DATE_FICHIER,
             codeClient,
@@ -136,11 +134,14 @@ def generate_balance_file(df_source):
             typePiece,
             codeReglement,
             NUERO_COMMANDE
-        ]
+        ])
 
     # Insérer la dernière ligne manuellement
-    df_balance.loc[len(df_balance)] = ['999999', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'FIN', '', '']
+    lignes.append(['999999', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'FIN', '', ''])
 
+    # Créer le DataFrame à partir de toutes les lignes
+    df_balance = pd.DataFrame(lignes)
+    
     return df_balance
 
 def export_dataframe_to_csv(df_source, type):
@@ -169,7 +170,7 @@ def export_dataframe_to_csv(df_source, type):
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
 
     try:
-        df_source.to_csv(nom_fichier, index=False, sep=';', encoding='utf-8-sig')
+        df_source.to_csv(nom_fichier, index=False, header=False, sep=';', encoding='utf-8-sig')
         return True, f"Fichier exporté avec succès : {nom_fichier}"
     except Exception as e:
         msg = f"Erreur lors de l'exportation : {str(e)}"
