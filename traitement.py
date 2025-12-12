@@ -345,7 +345,7 @@ def export_dataframe_to_csv(df_source, type, suffixe='1A'):
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
 
     try:
-        df_source.to_csv(nom_fichier, index=False, header=False, sep=';', encoding='utf-8-sig')
+        df_source.to_csv(nom_fichier, index=False, header=False, sep=';', encoding='utf-8-sig', float_format='%.2f')
         return True, f"Fichier exporté avec succès : {nom_fichier}"
     except Exception as e:
         msg = f"Erreur lors de l'exportation : {str(e)}"
