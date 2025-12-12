@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
-from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv
+from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays
+import pandas as pd
 
 
 class ConversionApp:
@@ -98,29 +99,73 @@ class ConversionApp:
         print("DataFrame Balance généré :")
         print(df_balance)
 
-        # Exporter le DataFrame Balance
-        success, message = export_dataframe_to_csv(df_balance, "balance")
-        if success:
-            messagebox.showinfo("Succès", message)
-        else:
-            messagebox.showerror("Erreur", message)
-
-        # Générer le dataframe Tiers à partir de la Balance
-        df_tiers, clients_non_identifies = generate_tiers_file(df_balance.copy())
-        print("DataFrame Tiers généré :")
-        print(df_tiers)
-        if clients_non_identifies:
+        # Charger les données clients pour la séparation
+        df_clients = pd.read_csv('datas/clients_siret.csv', sep=';', encoding='utf-8-sig')
+        
+        # Séparer les clients français et étrangers
+        df_balance_fr, df_balance_etranger = separer_clients_par_pays(df_balance, df_clients)
+        
+        fichiers_exportes = []
+        tous_clients_non_identifies = set()
+        
+        # Traiter les clients français (1A)
+        if not df_balance_fr.empty and len(df_balance_fr) > 2:  # Plus que juste les lignes début/fin
+            print("Export des clients français (1A)...")
+            
+            # Exporter Balance FR
+            success, message = export_dataframe_to_csv(df_balance_fr, "balance", "1A")
+            if success:
+                fichiers_exportes.append(message)
+            else:
+                messagebox.showerror("Erreur", message)
+                return
+            
+            # Générer et exporter Tiers FR
+            df_tiers_fr, clients_non_identifies_fr = generate_tiers_file(df_balance_fr.copy())
+            tous_clients_non_identifies.update(clients_non_identifies_fr)
+            
+            success, message = export_dataframe_to_csv(df_tiers_fr, "tiers", "1A")
+            if success:
+                fichiers_exportes.append(message)
+            else:
+                messagebox.showerror("Erreur", message)
+                return
+        
+        # Traiter les clients étrangers (1B)
+        if not df_balance_etranger.empty and len(df_balance_etranger) > 2:  # Plus que juste les lignes début/fin
+            print("Export des clients étrangers (1B)...")
+            
+            # Exporter Balance étranger
+            success, message = export_dataframe_to_csv(df_balance_etranger, "balance", "1B")
+            if success:
+                fichiers_exportes.append(message)
+            else:
+                messagebox.showerror("Erreur", message)
+                return
+            
+            # Générer et exporter Tiers étranger
+            df_tiers_etranger, clients_non_identifies_etr = generate_tiers_file(df_balance_etranger.copy())
+            tous_clients_non_identifies.update(clients_non_identifies_etr)
+            
+            success, message = export_dataframe_to_csv(df_tiers_etranger, "tiers", "1B")
+            if success:
+                fichiers_exportes.append(message)
+            else:
+                messagebox.showerror("Erreur", message)
+                return
+        
+        # Afficher les clients non identifiés s'il y en a
+        # Filtrer les valeurs vides
+        clients_valides = {c for c in tous_clients_non_identifies if c and str(c).strip() and str(c) not in ['000000', '999999']}
+        if clients_valides:
             messagebox.showwarning(
                 "Clients non identifiés",
-                f"Les clients suivants n'ont pas été identifiés :\n{', '.join(clients_non_identifies)}\n\nVeuillez vérifier les codes clients dans le fichier source."
+                f"Les clients suivants n'ont pas été identifiés :\n{', '.join(sorted(clients_valides))}\n\nVeuillez vérifier les codes clients."
             )
-
-        # Exporter le DataFrame Tiers
-        success, message = export_dataframe_to_csv(df_tiers, "tiers")
-        if success:
-            messagebox.showinfo("Succès", message)
-        else:
-            messagebox.showerror("Erreur", message)
+        
+        # Afficher un message de succès global
+        message_final = "Conversion terminée avec succès !\n\nFichiers exportés :\n" + "\n".join(fichiers_exportes)
+        messagebox.showinfo("Succès", message_final)
 
 def main():
     root = tk.Tk()

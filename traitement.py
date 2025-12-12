@@ -67,6 +67,61 @@ def valider_fichier(chemin_fichier):
     
     return True, "Fichier valide"
 
+
+def separer_clients_par_pays(df_balance, df_clients):
+    """
+    Sépare un DataFrame Balance en clients français et étrangers.
+    
+    Args:
+        df_balance (DataFrame): DataFrame Balance.
+        df_clients (DataFrame): DataFrame des informations clients.
+    
+    Returns:
+        tuple: (df_balance_fr, df_balance_etranger)
+    """
+    import pandas as pd
+    
+    # Récupérer les lignes de début/fin
+    ligne_debut = df_balance[df_balance['Code client'] == '000000']
+    ligne_fin = df_balance[df_balance['Code client'] == '999999']
+    
+    # Récupérer les lignes de données (sans début/fin)
+    df_data = df_balance[(df_balance['Code client'] != '000000') & (df_balance['Code client'] != '999999')]
+    
+    # Séparer français et étranger
+    lignes_fr = []
+    lignes_etranger = []
+    
+    for _, row in df_data.iterrows():
+        code_client = row['Code client']
+        
+        # Vérifier si le client existe dans df_clients
+        if code_client in df_clients['Code'].values:
+            client_info = df_clients[df_clients['Code'] == code_client].iloc[0]
+            pays = str(client_info.get('Pays', 'FRANCE')).upper()
+            
+            if pays == 'FRANCE':
+                lignes_fr.append(row)
+            else:
+                lignes_etranger.append(row)
+        else:
+            # Par défaut, considérer comme français si non trouvé
+            lignes_fr.append(row)
+    
+    # Créer les DataFrames
+    if lignes_fr:
+        df_fr = pd.concat([ligne_debut, pd.DataFrame(lignes_fr), ligne_fin], ignore_index=True)
+    else:
+        df_fr = pd.DataFrame(columns=df_balance.columns)
+    
+    if lignes_etranger:
+        df_etranger = pd.concat([ligne_debut, pd.DataFrame(lignes_etranger), ligne_fin], ignore_index=True)
+    else:
+        df_etranger = pd.DataFrame(columns=df_balance.columns)
+    
+    return df_fr, df_etranger
+
+
 def generate_balance_file(df_source):
     """
     Génère un fichier de balance à partir du DataFrame source.
@@ -115,7 +170,8 @@ def generate_balance_file(df_source):
             case 'V':
                 codeReglement = 'VIR'
             case 'A':
-                codeReglement = 'AVO'
+                codeReglement = ''
+                typePiece = 'AVO'
         
         if codeReglement == 'AVO':
             montantDevise = round(-abs(row.get('Montant T.T.C.')), 2)
@@ -185,18 +241,31 @@ def generate_tiers_file(df_balance):
     CODE_VENDEUR_CEDANT = '012345'
 
     # Récupérer les données utiles
-    df_clients = pd.read_csv('datas/clients_siret.csv', sep=';')
-    df_codes_pays = pd.read_csv('datas/codes_pays.csv', sep=';')
+    df_clients = pd.read_csv('datas/clients_siret.csv', sep=';', encoding='utf-8-sig')
+    df_codes_pays = pd.read_csv('datas/codes_pays.csv', sep=';', encoding='utf-8-sig')
 
     # Déclarer les clients non identifiés
     clients_non_identifies = set()
+    clients_traites = set()  # Pour éviter les doublons
 
     print(df_balance.head())
 
     # Parcourir les lignes du df balance et remplir le df tiers
     for _, row in df_balance.iterrows():
-        if not row['Code client'] in df_clients['Code'].values:
-            clients_non_identifies.add(str(row['Code client']))
+        code_client = row['Code client']
+        
+        # Ignorer les lignes de début/fin
+        if code_client in ['000000', '999999']:
+            continue
+        
+        # Éviter les doublons
+        if code_client in clients_traites:
+            continue
+        
+        clients_traites.add(code_client)
+        
+        if not code_client in df_clients['Code'].values:
+            clients_non_identifies.add(str(code_client))
             continue
         
         client_info = df_clients[df_clients['Code'] == row['Code client']].iloc[0]
@@ -242,13 +311,14 @@ def generate_tiers_file(df_balance):
 
     return df_tiers, clients_non_identifies
 
-def export_dataframe_to_csv(df_source, type):
+def export_dataframe_to_csv(df_source, type, suffixe='1A'):
     """
     Exporte le DataFrame source en fichier CSV.
     
     Args:
         df_source (DataFrame): DataFrame source.
-        type (str): Type de fichier ('balance' ou 'ecritures').
+        type (str): Type de fichier ('balance' ou 'tiers').
+        suffixe (str): Suffixe du fichier ('1A' pour français, '1B' pour étranger).
     
     Returns:
         tuple: (succès: bool, message: str)
@@ -263,14 +333,14 @@ def export_dataframe_to_csv(df_source, type):
         nom_fichier = "FBA"
         nom_fichier += "SS"
         nom_fichier += "012345"
-        nom_fichier += "1A"
+        nom_fichier += suffixe
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
     elif type == 'tiers':
         nom_fichier = "TIE"
         nom_fichier += "SS"
         nom_fichier += "012345"
-        nom_fichier += "1A"
+        nom_fichier += suffixe
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
 
