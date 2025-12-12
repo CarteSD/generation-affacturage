@@ -258,6 +258,13 @@ def export_dataframe_to_csv(df_source, type):
         nom_fichier += "1A"
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
+    elif type == 'tiers':
+        nom_fichier = "TIE"
+        nom_fichier += "SS"
+        nom_fichier += "012345"
+        nom_fichier += "1A"
+        nom_fichier += "."
+        nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
 
     try:
         df_source.to_csv(nom_fichier, index=False, header=False, sep=';', encoding='utf-8-sig')
