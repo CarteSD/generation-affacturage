@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
-from traitement import valider_fichier, convertir_fichier, generate_balance_file, export_dataframe_to_csv
+from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv
 
 
 class ConversionApp:
@@ -98,8 +98,24 @@ class ConversionApp:
         print("DataFrame Balance généré :")
         print(df_balance)
 
+        # Générer le dataframe Tiers à partir de la Balance
+        df_tiers, clients_non_identifies = generate_tiers_file(df_balance.copy())
+        print("DataFrame Tiers généré :")
+        print(df_tiers)
+        if clients_non_identifies:
+            messagebox.showwarning(
+                "Clients non identifiés",
+                f"Les clients suivants n'ont pas été identifiés :\n{', '.join(clients_non_identifies)}"
+            )
+
         # Exporter le DataFrame Balance
         success, message = export_dataframe_to_csv(df_balance, "balance")
+        if success:
+            messagebox.showinfo("Succès", message)
+        else:
+            messagebox.showerror("Erreur", message)
+
+        success, message = export_dataframe_to_csv(df_tiers, "tiers")
         if success:
             messagebox.showinfo("Succès", message)
         else:
