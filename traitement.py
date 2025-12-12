@@ -139,8 +139,21 @@ def generate_balance_file(df_source):
     # Insérer la dernière ligne manuellement
     lignes.append(['999999', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'FIN', '', ''])
 
-    # Créer le DataFrame à partir de toutes les lignes
-    df_balance = pd.DataFrame(lignes)
+    # Ajout du nom des colonnes
+    colonnes = [
+        'Code vendeur cédant',
+        'Date du fichier',
+        'Code client',
+        'N° de la pièce',
+        'Date de la pièce',
+        'Devise du fichier',
+        'Montant en devise',
+        'Date d\'échéance',
+        'Type de la pièce',
+        'Mode de règlement',
+        'Numéro de la commande'
+    ]
+    df_balance = pd.DataFrame(lignes, columns=colonnes)
     
     return df_balance
 
