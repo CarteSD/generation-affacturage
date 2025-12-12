@@ -144,6 +144,31 @@ def generate_balance_file(df_source):
     
     return df_balance
 
+def generate_tiers_file(df_balance):
+    """
+    Génère un fichier de tiers à partir du DataFrame Balance.
+    
+    Args:
+        df_balance (DataFrame): DataFrame Balance.
+    
+    Returns:
+        DataFrame: DataFrame des tiers généré.
+    """
+    try:
+        import pandas as pd
+    except Exception as e:
+        msg = "Le package 'pandas' (et 'openpyxl') n'est pas installé. Installez-le avec: pip install pandas openpyxl"
+        return False, msg
+    
+    df_tiers = pd.DataFrame()
+
+    lignes = []
+
+    # Insérer la première ligne manuellement
+    lignes.append(['000000', 'DEB', '32038969500026', 'MONTAGE ET ASSEMBLAGE MECANIQUE', 'MONTAGE ET ASSEMBLAGE MECANIQUE', '23 RUE MELVILLE-LYNCH', 'PARC D\'ACTIVITE MAIGNON', '64100', 'BAYONNE', 'FR'])
+
+    return df_tiers
+
 def export_dataframe_to_csv(df_source, type):
     """
     Exporte le DataFrame source en fichier CSV.
