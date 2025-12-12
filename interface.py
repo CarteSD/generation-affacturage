@@ -14,6 +14,7 @@ class ConversionApp:
         
         self.fichier_selectionne = None
         self.dataframe = None  # Stocke le DataFrame en mémoire
+        self.dossier_destination = None  # Dossier d'export
         
         # Frame principal
         main_frame = tk.Frame(root, padx=20, pady=20)
@@ -74,6 +75,16 @@ class ConversionApp:
             messagebox.showwarning("Attention", "Aucun fichier sélectionné")
             return
         
+        # Demander le dossier de destination
+        self.dossier_destination = filedialog.askdirectory(
+            title="Choisir le dossier de destination pour les fichiers CSV",
+            initialdir=os.path.dirname(self.fichier_selectionne)
+        )
+        
+        if not self.dossier_destination:
+            messagebox.showwarning("Attention", "Aucun dossier de destination sélectionné")
+            return
+        
         # Valider le fichier
         valide, message_validation = valider_fichier(self.fichier_selectionne)
         if not valide:
@@ -110,7 +121,7 @@ class ConversionApp:
         if not df_balance_fr.empty and len(df_balance_fr) > 2:  # Plus que juste les lignes début/fin
             
             # Exporter Balance FR
-            success, message = export_dataframe_to_csv(df_balance_fr, "balance", "1A")
+            success, message = export_dataframe_to_csv(df_balance_fr, "balance", "1A", self.dossier_destination)
             if success:
                 fichiers_exportes.append(message)
             else:
@@ -121,7 +132,7 @@ class ConversionApp:
             df_tiers_fr, clients_non_identifies_fr = generate_tiers_file(df_balance_fr.copy())
             tous_clients_non_identifies.update(clients_non_identifies_fr)
             
-            success, message = export_dataframe_to_csv(df_tiers_fr, "tiers", "1A")
+            success, message = export_dataframe_to_csv(df_tiers_fr, "tiers", "1A", self.dossier_destination)
             if success:
                 fichiers_exportes.append(message)
             else:
@@ -132,7 +143,7 @@ class ConversionApp:
         if not df_balance_etranger.empty and len(df_balance_etranger) > 2:  # Plus que juste les lignes début/fin
             
             # Exporter Balance étranger
-            success, message = export_dataframe_to_csv(df_balance_etranger, "balance", "1B")
+            success, message = export_dataframe_to_csv(df_balance_etranger, "balance", "1B", self.dossier_destination)
             if success:
                 fichiers_exportes.append(message)
             else:
@@ -143,7 +154,7 @@ class ConversionApp:
             df_tiers_etranger, clients_non_identifies_etr = generate_tiers_file(df_balance_etranger.copy())
             tous_clients_non_identifies.update(clients_non_identifies_etr)
             
-            success, message = export_dataframe_to_csv(df_tiers_etranger, "tiers", "1B")
+            success, message = export_dataframe_to_csv(df_tiers_etranger, "tiers", "1B", self.dossier_destination)
             if success:
                 fichiers_exportes.append(message)
             else:

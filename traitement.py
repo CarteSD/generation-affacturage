@@ -309,7 +309,7 @@ def generate_tiers_file(df_balance):
 
     return df_tiers, clients_non_identifies
 
-def export_dataframe_to_csv(df_source, type, suffixe='1A'):
+def export_dataframe_to_csv(df_source, type, suffixe='1A', dossier_destination=None):
     """
     Exporte le DataFrame source en fichier CSV.
     
@@ -317,6 +317,7 @@ def export_dataframe_to_csv(df_source, type, suffixe='1A'):
         df_source (DataFrame): DataFrame source.
         type (str): Type de fichier ('balance' ou 'tiers').
         suffixe (str): Suffixe du fichier ('1A' pour français, '1B' pour étranger).
+        dossier_destination (str): Chemin du dossier de destination (optionnel).
     
     Returns:
         tuple: (succès: bool, message: str)
@@ -341,10 +342,16 @@ def export_dataframe_to_csv(df_source, type, suffixe='1A'):
         nom_fichier += suffixe
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
+    
+    # Construire le chemin complet avec le dossier de destination
+    if dossier_destination:
+        chemin_complet = os.path.join(dossier_destination, nom_fichier)
+    else:
+        chemin_complet = nom_fichier
 
     try:
-        df_source.to_csv(nom_fichier, index=False, header=False, sep=';', encoding='utf-8-sig', float_format='%.2f')
-        return True, f"Fichier exporté avec succès : {nom_fichier}"
+        df_source.to_csv(chemin_complet, index=False, header=False, sep=';', encoding='utf-8-sig', float_format='%.2f')
+        return True, f"Fichier exporté avec succès : {chemin_complet}"
     except Exception as e:
         msg = f"Erreur lors de l'exportation : {str(e)}"
         return False, msg
