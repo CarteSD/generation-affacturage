@@ -200,16 +200,24 @@ def generate_tiers_file(df_balance):
             continue
         
         client_info = df_clients[df_clients['Code'] == row['Code client']].iloc[0]
+        
+        # Fonction pour gérer les NaN
+        def safe_str(val, max_len=None):
+            if pd.isna(val):
+                return ''
+            result = str(val)
+            return result[:max_len] if max_len else result
+        
         lignes.append([
             CODE_VENDEUR_CEDANT,
-            str(client_info['Code']),
-            str(client_info['SIRET'])[:14],
-            str(client_info['Raison sociale'])[:40],
-            str(client_info['Raison sociale'])[:40],
-            str(client_info['Voie'])[:40],
-            str(client_info['Complement'])[:40],
-            str(client_info['CP'])[:6],
-            str(client_info['Ville'])[:34],
+            safe_str(client_info['Code']),
+            safe_str(client_info['SIRET'], 14),
+            safe_str(client_info['Raison sociale'], 40),
+            safe_str(client_info['Raison sociale'], 40),
+            safe_str(client_info['Voie'], 40),
+            safe_str(client_info['Complement'], 40),
+            safe_str(client_info['CP'], 6),
+            safe_str(client_info['Ville'], 34),
             df_codes_pays.loc[df_codes_pays['Pays'] == client_info['Pays'], 'ISO'].values[0] if len(df_codes_pays.loc[df_codes_pays['Pays'] == client_info['Pays'], 'ISO'].values) > 0 else 'FR'
         ])
 

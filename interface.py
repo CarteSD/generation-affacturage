@@ -80,9 +80,9 @@ class ConversionApp:
             return
         
         # Convertir le fichier
-        succes, resultat = convertir_fichier(self.fichier_selectionne)
+        success, resultat = convertir_fichier(self.fichier_selectionne)
         
-        if succes:
+        if success:
             self.dataframe = resultat
             nb_lignes, nb_colonnes = self.dataframe.shape
             messagebox.showinfo(
@@ -93,20 +93,10 @@ class ConversionApp:
             messagebox.showerror("Erreur", resultat)
             return
         
-        # Générer le dataframe Balance
+        # Générer le Dataframe Balance
         df_balance = generate_balance_file(self.dataframe)
         print("DataFrame Balance généré :")
         print(df_balance)
-
-        # Générer le dataframe Tiers à partir de la Balance
-        df_tiers, clients_non_identifies = generate_tiers_file(df_balance.copy())
-        print("DataFrame Tiers généré :")
-        print(df_tiers)
-        if clients_non_identifies:
-            messagebox.showwarning(
-                "Clients non identifiés",
-                f"Les clients suivants n'ont pas été identifiés :\n{', '.join(clients_non_identifies)}"
-            )
 
         # Exporter le DataFrame Balance
         success, message = export_dataframe_to_csv(df_balance, "balance")
@@ -115,6 +105,17 @@ class ConversionApp:
         else:
             messagebox.showerror("Erreur", message)
 
+        # Générer le dataframe Tiers à partir de la Balance
+        df_tiers, clients_non_identifies = generate_tiers_file(df_balance.copy())
+        print("DataFrame Tiers généré :")
+        print(df_tiers)
+        if clients_non_identifies:
+            messagebox.showwarning(
+                "Clients non identifiés",
+                f"Les clients suivants n'ont pas été identifiés :\n{', '.join(clients_non_identifies)}\n\nVeuillez vérifier les codes clients dans le fichier source."
+            )
+
+        # Exporter le DataFrame Tiers
         success, message = export_dataframe_to_csv(df_tiers, "tiers")
         if success:
             messagebox.showinfo("Succès", message)
