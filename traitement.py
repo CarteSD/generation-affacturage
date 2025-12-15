@@ -4,9 +4,23 @@ Contient les fonctions de conversion et de traitement des données
 """
 
 import os
+import sys
 from pathlib import Path
 from re import match
 from unittest import case
+
+
+def get_resource_path(relative_path):
+    """
+    Obtient le chemin absolu d'une ressource, compatible avec PyInstaller.
+    """
+    try:
+        # PyInstaller crée un dossier temp et stocke le chemin dans _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 def convertir_fichier(chemin_fichier, sheet_name=0):
     """
@@ -241,8 +255,8 @@ def generate_tiers_file(df_balance):
     CODE_VENDEUR_CEDANT = '012345'
 
     # Récupérer les données utiles
-    df_clients = pd.read_csv('datas/clients_siret.csv', sep=';', encoding='utf-8-sig')
-    df_codes_pays = pd.read_csv('datas/codes_pays.csv', sep=';', encoding='utf-8-sig')
+    df_clients = pd.read_csv(get_resource_path('datas/clients_siret.csv'), sep=';', encoding='utf-8-sig')
+    df_codes_pays = pd.read_csv(get_resource_path('datas/codes_pays.csv'), sep=';', encoding='utf-8-sig')
 
     # Déclarer les clients non identifiés
     clients_non_identifies = set()
