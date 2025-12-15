@@ -12,6 +12,13 @@ class ConversionApp:
         self.root.geometry("500x200")
         self.root.resizable(False, False)
         
+        # Définir l'icône de la fenêtre
+        try:
+            if os.path.exists("burographic.ico"):
+                self.root.iconbitmap("burographic.ico")
+        except Exception:
+            pass  # Ignorer si l'icône n'est pas trouvée
+        
         self.fichier_selectionne = None
         self.dataframe = None  # Stocke le DataFrame en mémoire
         self.dossier_destination = None  # Dossier d'export
