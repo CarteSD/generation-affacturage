@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
-from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays
+from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays, get_resource_path
 import pandas as pd
 
 
@@ -14,8 +14,9 @@ class ConversionApp:
         
         # Définir l'icône de la fenêtre
         try:
-            if os.path.exists("burographic.ico"):
-                self.root.iconbitmap("burographic.ico")
+            icon_path = get_resource_path("burographic.ico")
+            if os.path.exists(icon_path):
+                self.root.iconbitmap(icon_path)
         except Exception:
             pass  # Ignorer si l'icône n'est pas trouvée
         
@@ -116,7 +117,7 @@ class ConversionApp:
         df_balance = generate_balance_file(self.dataframe)
 
         # Charger les données clients pour la séparation
-        df_clients = pd.read_csv('datas/clients_siret.csv', sep=';', encoding='utf-8-sig')
+        df_clients = pd.read_csv(get_resource_path('datas/clients_siret.csv'), sep=';', encoding='utf-8-sig')
         
         # Séparer les clients français et étrangers
         df_balance_fr, df_balance_etranger = separer_clients_par_pays(df_balance, df_clients)
