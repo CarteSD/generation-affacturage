@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
+from datetime import datetime
 from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays, get_resource_path
 import pandas as pd
 
@@ -83,14 +84,15 @@ class ConversionApp:
             messagebox.showwarning("Attention", "Aucun fichier sélectionné")
             return
         
-        # Demander le dossier de destination
-        self.dossier_destination = filedialog.askdirectory(
-            title="Choisir le dossier de destination pour les fichiers CSV",
-            initialdir=os.path.dirname(self.fichier_selectionne)
-        )
+        # Définir le dossier de destination fixe avec sous-dossier date
+        date_du_jour = datetime.now().strftime("%Y-%m-%d")
+        self.dossier_destination = os.path.join(os.path.expanduser("~"), "Documents", "csv-export", date_du_jour)
         
-        if not self.dossier_destination:
-            messagebox.showwarning("Attention", "Aucun dossier de destination sélectionné")
+        # Créer le dossier s'il n'existe pas
+        try:
+            os.makedirs(self.dossier_destination, exist_ok=True)
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Impossible de créer le dossier d'export :\n{str(e)}")
             return
         
         # Valider le fichier
