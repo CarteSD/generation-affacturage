@@ -364,7 +364,7 @@ def export_dataframe_to_csv(df_source, type, suffixe='1A', dossier_destination=N
         chemin_complet = nom_fichier
 
     try:
-        df_source.to_csv(chemin_complet, index=False, header=False, sep=';', encoding='utf-8-sig', float_format='%.2f')
+        df_source.to_csv(chemin_complet, index=False, header=False, sep=';', encoding='utf-8-sig')
         return True, f"Fichier exporté avec succès : {chemin_complet}"
     except Exception as e:
         msg = f"Erreur lors de l'exportation : {str(e)}"
