@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
+import shutil
 from datetime import datetime
 from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays, get_resource_path
 import pandas as pd
@@ -93,6 +94,15 @@ class ConversionApp:
             os.makedirs(self.dossier_destination, exist_ok=True)
         except Exception as e:
             messagebox.showerror("Erreur", f"Impossible de créer le dossier d'export :\n{str(e)}")
+            return
+        
+        # Copier le fichier source dans le dossier de destination
+        try:
+            nom_fichier_source = os.path.basename(self.fichier_selectionne)
+            chemin_copie = os.path.join(self.dossier_destination, nom_fichier_source)
+            shutil.copy2(self.fichier_selectionne, chemin_copie)
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Impossible de copier le fichier source :\n{str(e)}")
             return
         
         # Valider le fichier
