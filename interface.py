@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 import os
 import shutil
 from datetime import datetime
-from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays, get_resource_path
+from traitement import valider_fichier, convertir_fichier, generate_balance_file, generate_tiers_file, export_dataframe_to_csv, separer_clients_par_pays, get_resource_path, get_data_file_path
 import pandas as pd
 
 
@@ -129,7 +129,7 @@ class ConversionApp:
         df_balance = generate_balance_file(self.dataframe)
 
         # Charger les données clients pour la séparation
-        df_clients = pd.read_csv(get_resource_path('datas/clients_siret.csv'), sep=';', encoding='utf-8-sig')
+        df_clients = pd.read_csv(get_data_file_path('clients_siret.csv'), sep=';', encoding='utf-8-sig')
         
         # Séparer les clients français et étrangers
         df_balance_fr, df_balance_etranger = separer_clients_par_pays(df_balance, df_clients)

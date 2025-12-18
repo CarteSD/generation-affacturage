@@ -5,6 +5,7 @@ Contient les fonctions de conversion et de traitement des données
 
 import os
 import sys
+import shutil
 from pathlib import Path
 from re import match
 from unittest import case
@@ -21,6 +22,36 @@ def get_resource_path(relative_path):
         base_path = os.path.abspath(".")
     
     return os.path.join(base_path, relative_path)
+
+
+def get_data_file_path(filename):
+    """
+    Obtient le chemin d'un fichier de données modifiable par l'utilisateur.
+    Les fichiers sont stockés dans Documents/CSV-MAM/config.
+    Si le fichier n'existe pas, il est copié depuis le bundle.
+    
+    Args:
+        filename (str): Nom du fichier (ex: 'clients_siret.csv')
+    
+    Returns:
+        str: Chemin complet du fichier de données
+    """
+    # Dossier de configuration dans Documents
+    config_dir = os.path.join(os.path.expanduser("~"), "Documents", "CSV-MAM", "config")
+    
+    # Créer le dossier s'il n'existe pas
+    os.makedirs(config_dir, exist_ok=True)
+    
+    # Chemin du fichier dans le dossier config
+    data_file_path = os.path.join(config_dir, filename)
+    
+    # Si le fichier n'existe pas, le copier depuis le bundle
+    if not os.path.exists(data_file_path):
+        source_path = get_resource_path(os.path.join('datas', filename))
+        if os.path.exists(source_path):
+            shutil.copy2(source_path, data_file_path)
+    
+    return data_file_path
 
 def convertir_fichier(chemin_fichier, sheet_name=0):
     """
@@ -253,8 +284,8 @@ def generate_tiers_file(df_balance):
     CODE_VENDEUR_CEDANT = '012345'
 
     # Récupérer les données utiles
-    df_clients = pd.read_csv(get_resource_path('datas/clients_siret.csv'), sep=';', encoding='utf-8-sig')
-    df_codes_pays = pd.read_csv(get_resource_path('datas/codes_pays.csv'), sep=';', encoding='utf-8-sig')
+    df_clients = pd.read_csv(get_data_file_path('clients_siret.csv'), sep=';', encoding='utf-8-sig')
+    df_codes_pays = pd.read_csv(get_data_file_path('codes_pays.csv'), sep=';', encoding='utf-8-sig')
 
     # Déclarer les clients non identifiés
     clients_non_identifies = set()
