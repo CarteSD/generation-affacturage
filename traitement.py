@@ -171,7 +171,7 @@ def generate_balance_file(df_source):
         numPiece = row.get('N°Fact.')
         datePiece = row.get('Date').strftime('%d/%m/%Y')
         dateEcheance = row.get('Echéance').strftime('%d/%m/%Y')
-        typePiece = 'FAC'
+        typePiece = 'FAC' # Mettre FAC par défaut
 
         premiereLettreCodeReglement = str(reglement)[0]
 
@@ -184,12 +184,12 @@ def generate_balance_file(df_source):
             case 'V':
                 codeReglement = 'VIR'
             case 'A':
-                codeReglement = ''
-                typePiece = 'AVO'
+                codeReglement = '' # Supprimer le code règlement (formalisme demandé)
+                typePiece = 'AVO' # Remplacer le type de pièce par AVO
         
-        if codeReglement == 'AVO':
+        if typePiece == 'AVO':
             montantDevise = round(-abs(row.get('Montant T.T.C.')), 2)
-        elif codeReglement in ['VIR', 'CHE', 'TRT']:
+        else:
             montantDevise = round(abs(row.get('Montant T.T.C.')), 2)
 
         lignes.append([
