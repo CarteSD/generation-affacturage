@@ -87,7 +87,7 @@ class ConversionApp:
         
         # Définir le dossier de destination fixe avec sous-dossier date
         date_du_jour = datetime.now().strftime("%Y-%m-%d")
-        self.dossier_destination = os.path.join(os.path.expanduser("~"), "Documents", "csv-export", date_du_jour)
+        self.dossier_destination = os.path.join(os.path.expanduser("~"), "Documents", "CSV-MAM", "csv-export", date_du_jour)
         
         # Créer le dossier s'il n'existe pas
         try:
