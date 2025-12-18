@@ -177,8 +177,6 @@ def generate_balance_file(df_source):
 
         # Faire un switch case sur la première lettre du code règlement
         match premiereLettreCodeReglement:
-            case 'T':
-                codeReglement = 'TRT'
             case 'C':
                 codeReglement = 'CHE'
             case 'V':
