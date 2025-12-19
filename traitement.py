@@ -373,14 +373,14 @@ def export_dataframe_to_csv(df_source, type, suffixe='1A', dossier_destination=N
     
     if type == 'balance':
         nom_fichier = "FBA"
-        nom_fichier += "SS"
+        nom_fichier += "FH"
         nom_fichier += "123456"
         nom_fichier += suffixe
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
     elif type == 'tiers':
         nom_fichier = "TIE"
-        nom_fichier += "SS"
+        nom_fichier += "FH"
         nom_fichier += "123456"
         nom_fichier += suffixe
         nom_fichier += "."
