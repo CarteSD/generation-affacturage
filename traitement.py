@@ -190,7 +190,7 @@ def generate_balance_file(df_source):
     lignes.append(['000000', pd.Timestamp.now().strftime('%d/%m/%Y'), '', '', pd.Timestamp.now().strftime('%d/%m/%Y'), 'EUR', 0, 0, 'DEB', '', ''])
 
     # Définir les constantes pour les colonnes
-    CODE_VENDEUR_CEDANT = '012345'
+    CODE_VENDEUR_CEDANT = '123456'
     DATE_FICHIER = pd.Timestamp.now().strftime('%d/%m/%Y')
     DEVISE_FICHIER = 'EUR'
     NUERO_COMMANDE = ''
@@ -281,7 +281,7 @@ def generate_tiers_file(df_balance):
     lignes.append(['000000', 'DEB', '32038969500026', 'MONTAGE ET ASSEMBLAGE MECANIQUE', 'MONTAGE ET ASSEMBLAGE MECANIQUE', '23 RUE MELVILLE-LYNCH', 'PARC D\'ACTIVITE MAIGNON', '64100', 'BAYONNE', 'FR'])
     
     # Définir les constantes pour les colonnes
-    CODE_VENDEUR_CEDANT = '012345'
+    CODE_VENDEUR_CEDANT = '123456'
 
     # Récupérer les données utiles
     df_clients = pd.read_csv(get_data_file_path('clients_siret.csv'), sep=';', encoding='utf-8-sig')
@@ -374,14 +374,14 @@ def export_dataframe_to_csv(df_source, type, suffixe='1A', dossier_destination=N
     if type == 'balance':
         nom_fichier = "FBA"
         nom_fichier += "SS"
-        nom_fichier += "012345"
+        nom_fichier += "123456"
         nom_fichier += suffixe
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
     elif type == 'tiers':
         nom_fichier = "TIE"
         nom_fichier += "SS"
-        nom_fichier += "012345"
+        nom_fichier += "123456"
         nom_fichier += suffixe
         nom_fichier += "."
         nom_fichier += f"{pd.Timestamp.now().timetuple().tm_yday:03d}"
